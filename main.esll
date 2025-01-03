@@ -1,3 +1,11 @@
-void main():
-  print("Hello World")
+Void main()
+  String text = "Hello World"
+  print(text)
+
+  anotherFunction()
+end
+
+Void anotherFunction()
+  print("Some shitty code")
+end
 
