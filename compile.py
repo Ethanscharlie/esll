@@ -1,14 +1,37 @@
-from ast import operator
+from ast import expr, operator
 from enum import Enum
+from os import walk
 
 valid_types = [
     "Void",
     "Integer",
+    "Decimal",
+    "Boolean",
     "String"
 ]
 
 valid_keywords = [
-    "end"
+    "end",
+    "if",
+    "while",
+    "else",
+    "elif",
+    "return"
+]
+
+valid_operators = [
+    "=",
+    "+",
+    "-",
+    "/",
+    "*",
+    "(",
+    ")",
+    "%",
+    ">",
+    "<",
+    "&",
+    "|",
 ]
 
 class TokenType(Enum):
@@ -17,6 +40,7 @@ class TokenType(Enum):
     OPERATOR = 2
     LITERAL = 3
     TYPE = 4
+    SEPERATOR = 5
 
 class Token:
     def __init__(self, token_type: TokenType, value: str):
@@ -25,6 +49,32 @@ class Token:
 
     def __repr__(self) -> str:
         return f"Type: {self.token_type}, Value: {self.value}"
+
+def compile_expression(tokens: list[Token]) -> str:
+    expression = ""
+
+    for token in tokens:
+        if token.token_type == TokenType.IDENTIFIER:
+            expression += token.value
+
+        elif token.token_type == TokenType.LITERAL:
+            literal = token.value
+
+            # Boolean to python boolean
+            if literal == "true": literal = "True"
+            elif literal == "false": literal = "False"
+
+            expression += literal
+
+        elif token.token_type == TokenType.OPERATOR:
+            operator = token.value
+            if operator == "&": operator = " and "
+            if operator == "|": operator = " or "
+            if operator == "=": operator = "=="
+            expression += operator
+
+    return expression
+
 
 def main() -> None:
     ESLL_FILE = "main.esll"
@@ -46,15 +96,23 @@ def main() -> None:
         def add_word_token(word: str):
             token_type = TokenType.IDENTIFIER
 
-            if word in valid_types:
+            if word.replace(".", "").isnumeric():
+                token_type = TokenType.LITERAL
+
+            if word == "false" or word == "true":
+                token_type = TokenType.LITERAL
+
+            elif word in valid_types:
                 token_type = TokenType.TYPE
 
-            if word in valid_keywords:
+            elif word in valid_keywords:
                 token_type = TokenType.KEYWORD
 
             tokenized_lines[-1].append(Token(token_type, word))
 
-        for c in line:
+        for i in range(len(line)):
+            c = line[i]
+
             added_to_word = False
             token = Token(TokenType.IDENTIFIER, "")
 
@@ -68,17 +126,11 @@ def main() -> None:
             elif c == " ":
                 pass
 
-            elif c == "=":
-                token = Token(TokenType.OPERATOR, "=")
+            elif c == ",":
+                token = Token(TokenType.SEPERATOR, c)
 
-            elif c == "(":
-                token = Token(TokenType.OPERATOR, "(")
-
-            elif c == ")":
-                token = Token(TokenType.OPERATOR, ")")
-
-            elif c == ":":
-                token = Token(TokenType.OPERATOR, ":")
+            elif c in valid_operators:
+                token = Token(TokenType.OPERATOR, c)
 
             elif c == "\"":
                 in_quotes = True
@@ -106,25 +158,49 @@ def main() -> None:
             print(token)
 
     block = 0
+    index = 0
     for tokenized_line in tokenized_lines:
-        block_text = "    " * block
+        index += 1
+        print("On Line: " + str(index))
+
+        def block_text() -> str:
+            return "    " * block
 
         if len(tokenized_line) == 0:
             continue
 
         if tokenized_line[0].token_type == TokenType.IDENTIFIER: # Must be setting a variable or calling a function
+            identifier = tokenized_line[0].value
+
             if tokenized_line[1].token_type == TokenType.OPERATOR:
-                if tokenized_line[1].value == "=": # Is setting a variable
-                    pass
+                para = 0
                 if tokenized_line[1].value == "(":
-                    args: list[str] = []
+                    args: list[str] = [""]
                     i = 2
-                    while tokenized_line[i].value != ")" and tokenized_line[i].token_type != TokenType.OPERATOR:
+                    while tokenized_line[i].value != ")" or para != 0:
+                        if tokenized_line[i].token_type == TokenType.SEPERATOR:
+                            args.append("")
+
+                        if tokenized_line[i].value == "(":
+                            para += 1
+
                         token = tokenized_line[i]
-                        args.append(str(token.value))
+
+                        if para > 0:
+                            args[-1] += str(token.value)
+                        else:
+                            args[-1] += str(token.value)
+
+                        if tokenized_line[i].value == ")":
+                            para -= 1
+
                         i += 1
 
-                    my_code.append(f"{block_text}{tokenized_line[0].value}({', '.join(args)})")
+                    my_code.append(f"{block_text()}{tokenized_line[0].value}({', '.join(args)})")
+
+            else: # Variable
+                expression = compile_expression(tokenized_line[1:])
+                my_code.append(f"{block_text()}{identifier} = {expression}")
         
         elif tokenized_line[0].token_type == TokenType.TYPE: # Defining a variable or a function
             definition_type = tokenized_line[0]
@@ -132,22 +208,45 @@ def main() -> None:
                 identifier = tokenized_line[1].value
 
                 if tokenized_line[2].token_type == TokenType.OPERATOR: 
-                    if tokenized_line[2].value == "=": # Is defining a variable
-                        if tokenized_line[3].token_type == TokenType.LITERAL:
-                            literal = tokenized_line[3].value
+                    if tokenized_line[2].value == "(":
+                        new_function_args: list[str] = []
+                        for i in range(2, len(tokenized_line)):
+                            if tokenized_line[i].token_type == TokenType.IDENTIFIER:
+                                new_function_args.append(tokenized_line[i].value)
 
-                            my_code.append(f"{block_text}{identifier} = {literal}")
-
-                    elif tokenized_line[2].value == "(":
                         # Fuck args for now
-                        my_code.append(f"{block_text}def {identifier}():")
+                        my_code.append(f"{block_text()}def {identifier}({', '.join(new_function_args)}):")
                         block += 1
+                else:
+                    expression = compile_expression(tokenized_line[2:])
+                    my_code.append(f"{block_text()}{identifier} = {expression}")
+
 
         elif tokenized_line[0].token_type == TokenType.KEYWORD:
             if tokenized_line[0].value == "end":
                 if block == 0:
-                    print("Misplaced end keyword")
+                    raise SyntaxError(f"Line: {len(my_code)}, Misplaced end keyword")
                 block -= 1
+
+            elif tokenized_line[0].value == "if":
+                expression = compile_expression(tokenized_line[1:])
+                my_code.append(f"{block_text()}if ({expression}):")
+                block += 1
+
+            elif tokenized_line[0].value == "return":
+                expression = compile_expression(tokenized_line[1:])
+                my_code.append(f"{block_text()}return {expression}")
+
+            elif tokenized_line[0].value == "elif":
+                block -= 1
+                expression = compile_expression(tokenized_line[1:])
+                my_code.append(f"{block_text()}elif ({expression}):")
+                block += 1
+
+            elif tokenized_line[0].value == "else":
+                block -= 1
+                my_code.append(f"{block_text()}else:")
+                block += 1
 
     my_code.append("main()")
 

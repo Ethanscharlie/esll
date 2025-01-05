@@ -1,11 +1,25 @@
-Void main()
-  String text = "Hello World"
-  print(text)
+String checkNumber(Integer number)
+  if number % 3 = 0
+    return "fizz"
+  elif number % 5 = 0
+    return "buzz"
+  elif number % 5 = 0 & number % 3 = 0
+    return "fizzbuzz"
+  end
 
-  anotherFunction()
+  return str(number)
 end
 
-Void anotherFunction()
-  print("Some shitty code")
+Void doFizzbuzz(Integer number)
+  print(number)
+  print(checkNumber(number))
+  print("")
+end
+
+Void main()
+  doFizzbuzz(5)
+  doFizzbuzz(3)
+  doFizzbuzz(15)
+  doFizzbuzz(2)
 end
 
