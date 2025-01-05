@@ -1,25 +1,10 @@
-String checkNumber(Integer number)
-  if number % 3 = 0
-    return "fizz"
-  elif number % 5 = 0
-    return "buzz"
-  elif number % 5 = 0 & number % 3 = 0
-    return "fizzbuzz"
-  end
-
-  return str(number)
-end
-
-Void doFizzbuzz(Integer number)
-  print(number)
-  print(checkNumber(number))
-  print("")
-end
-
 Void main()
-  doFizzbuzz(5)
-  doFizzbuzz(3)
-  doFizzbuzz(15)
-  doFizzbuzz(2)
-end
+  String# myList
+  myList range(1, 11)
 
+  Integer i 0
+  while i < len(myList)
+    print(listget(myList, i))
+    i i + 1
+  end
+end

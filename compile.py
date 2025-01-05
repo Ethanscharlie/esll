@@ -1,6 +1,6 @@
 from ast import expr, operator
 from enum import Enum
-from os import walk
+from os import confstr, walk
 
 valid_types = [
     "Void",
@@ -31,8 +31,10 @@ valid_operators = [
     ">",
     "<",
     "&",
-    "|",
+    "|"
 ]
+
+variable_tracker: dict[str, str] = {}
 
 class TokenType(Enum):
     KEYWORD = 0
@@ -71,6 +73,7 @@ def compile_expression(tokens: list[Token]) -> str:
             if operator == "&": operator = " and "
             if operator == "|": operator = " or "
             if operator == "=": operator = "=="
+
             expression += operator
 
     return expression
@@ -102,7 +105,7 @@ def main() -> None:
             if word == "false" or word == "true":
                 token_type = TokenType.LITERAL
 
-            elif word in valid_types:
+            elif word.replace("#", "") in valid_types:
                 token_type = TokenType.TYPE
 
             elif word in valid_keywords:
@@ -157,6 +160,13 @@ def main() -> None:
         for token in tokenized_line:
             print(token)
 
+    my_code.append("""
+def append(list, item):
+    list.append(item)
+def listget(list, index):
+    return list[index]
+    """)
+
     block = 0
     index = 0
     for tokenized_line in tokenized_lines:
@@ -180,6 +190,8 @@ def main() -> None:
                     while tokenized_line[i].value != ")" or para != 0:
                         if tokenized_line[i].token_type == TokenType.SEPERATOR:
                             args.append("")
+                            i += 1
+                            continue
 
                         if tokenized_line[i].value == "(":
                             para += 1
@@ -207,7 +219,7 @@ def main() -> None:
             if tokenized_line[1].token_type == TokenType.IDENTIFIER:
                 identifier = tokenized_line[1].value
 
-                if tokenized_line[2].token_type == TokenType.OPERATOR: 
+                if len(tokenized_line) > 2 and tokenized_line[2].token_type == TokenType.OPERATOR: 
                     if tokenized_line[2].value == "(":
                         new_function_args: list[str] = []
                         for i in range(2, len(tokenized_line)):
@@ -218,8 +230,13 @@ def main() -> None:
                         my_code.append(f"{block_text()}def {identifier}({', '.join(new_function_args)}):")
                         block += 1
                 else:
-                    expression = compile_expression(tokenized_line[2:])
-                    my_code.append(f"{block_text()}{identifier} = {expression}")
+                    variable_tracker[identifier] = definition_type.value
+
+                    if definition_type.value[-1] == "#":
+                        my_code.append(f"{block_text()}{identifier} = []")
+                    else:
+                        expression = compile_expression(tokenized_line[2:])
+                        my_code.append(f"{block_text()}{identifier} = {expression}")
 
 
         elif tokenized_line[0].token_type == TokenType.KEYWORD:
@@ -231,6 +248,11 @@ def main() -> None:
             elif tokenized_line[0].value == "if":
                 expression = compile_expression(tokenized_line[1:])
                 my_code.append(f"{block_text()}if ({expression}):")
+                block += 1
+
+            elif tokenized_line[0].value == "while":
+                expression = compile_expression(tokenized_line[1:])
+                my_code.append(f"{block_text()}while ({expression}):")
                 block += 1
 
             elif tokenized_line[0].value == "return":
