@@ -4,11 +4,21 @@ def append(list, item):
 def listget(list, index):
     return list[index]
     
+def checkNumber(number):
+    if number%3==0:
+        return "fizz"
+    elif number%5==0:
+        return "buzz"
+    elif number%5==0 and number%3==0:
+        return "fizzbuzz"
+    return str
+def doFizzbuzz(number):
+    print(number)
+    print(checkNumber)
+    print("")
 def main():
-    myList = []
-    myList = range(111)
-    i = 0
-    while (i<len(myList)):
-        print(listget(myList, i))
-        i = i+1
+    doFizzbuzz(5)
+    doFizzbuzz(3)
+    doFizzbuzz(15)
+    doFizzbuzz(2)
 main()
