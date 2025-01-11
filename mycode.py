@@ -13,12 +13,12 @@ def checkNumber(number):
         return "fizzbuzz"
     return str(number)
 def doFizzbuzz(number):
-    _ = print(number)
-    _ = print(checkNumber)
-    _ = print("")
+    print(number)
+    print(checkNumber)
+    print("")
 def main():
-    _ = doFizzbuzz(5)
-    _ = doFizzbuzz(3)
-    _ = doFizzbuzz(15)
-    _ = doFizzbuzz(2)
+    doFizzbuzz(5)
+    doFizzbuzz(3)
+    doFizzbuzz(15)
+    doFizzbuzz(2)
 main()

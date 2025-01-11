@@ -142,14 +142,6 @@ def listget(list, index):
             my_code.append(f"{get_block()}def {identifier}({', '.join([arg.identifier.name for arg in args])}):")
             block += 1
 
-        # elif node.nodeType == node.NodeType.FUNCTION_CALL:
-        #     if node.identifier == None:
-        #         raise SyntaxError("Null Identifier")
-        #
-        #     identifier = node.identifier.name
-        #     args = node.args
-        #     my_code.append(f"{get_block()}{identifier}({', '.join([write_expression(arg) for arg in args])})")
-
         elif node.nodeType == node.NodeType.IF:
             if node.expression == None:
                 raise SyntaxError("Null Expression")
@@ -191,6 +183,9 @@ def listget(list, index):
             if block == 0:
                 raise SyntaxError("Misplaced End")
             block -= 1
+
+        else:
+            my_code.append(f"{get_block()}{write_expression(node)}")
 
     my_code.append("main()")
     return my_code

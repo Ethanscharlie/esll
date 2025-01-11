@@ -279,7 +279,7 @@ def generate_ast_tree(tokenized_lines: list[list[Token]]) -> list[ASTNode]:
             identifierNode.name = identifier
 
             if tokenized_line[1].token_type == Token.TOKEN_TYPE.OPENING_PARENTHESIS:
-                pass
+                ast_nodes.append(make_expression_node(tokenized_line))
 
             else:
                 node = ASTNode(ASTNode.NodeType.VARIABLE_ASSIGNMENT)
