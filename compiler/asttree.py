@@ -50,6 +50,8 @@ class ASTNode:
     expression: ASTNode | None = None
     args: list = field(default_factory=list)
 
+
+
 def generate_ast_tree(tokenized_lines: list[list[Token]]) -> list[ASTNode]:
     ast_nodes: list[ASTNode] = []
 
@@ -63,22 +65,59 @@ def generate_ast_tree(tokenized_lines: list[list[Token]]) -> list[ASTNode]:
             return EsllType.VOID
 
         def make_expression_node(tokens: list[Token]) -> ASTNode:
-            def make_data_node(data_token: Token) -> ASTNode:
+            def make_data_node(i: int) -> tuple[ASTNode, int]: 
+                data_token = tokens[i]
+                # We need "i" so that if its a function call we can advance the tokens
+
                 data_node = ASTNode(ASTNode.NodeType.NONE)
 
                 if data_token.token_type == Token.TOKEN_TYPE.IDENTIFIER:
-                    data_node = ASTNode(ASTNode.NodeType.IDENTIFIER)
-                    data_node.name = data_token.value
+                    identifierNode = ASTNode(ASTNode.NodeType.IDENTIFIER)
+                    identifierNode.name = data_token.value
+
+                    if i < len(tokens) - 1 and tokens[i + 1].token_type == Token.TOKEN_TYPE.OPENING_PARENTHESIS: # Is a function call
+                        data_node = ASTNode(ASTNode.NodeType.FUNCTION_CALL)
+                        data_node.identifier = identifierNode
+
+                        i += 2
+
+                        parenthesis_deep = 0
+                        expression_collector: list[Token] = []
+                        while tokens[i] != Token.TOKEN_TYPE.CLOSING_PARENTHESIS or parenthesis_deep > 0: 
+                            arg_token = tokens[i]
+
+                            if arg_token.token_type == Token.TOKEN_TYPE.SEPERATOR:
+                                data_node.args.append(make_expression_node(expression_collector))
+                                expression_collector = []
+
+                            elif arg_token.token_type == Token.TOKEN_TYPE.OPENING_PARENTHESIS:
+                                parenthesis_deep += 1
+
+                            elif arg_token.token_type == Token.TOKEN_TYPE.CLOSING_PARENTHESIS:
+                                parenthesis_deep -= 1
+
+                            else:
+                                expression_collector.append(arg_token)
+
+                            i += 1
+                            if i == len(tokens):
+                                i -= 2
+                                break
+
+                        i += 1 # Get out of last parenthesis on function call
+                        data_node.args.append(make_expression_node(expression_collector))
+
+                    else: # Is a variable
+                        data_node = identifierNode
 
                 elif data_token.token_type == Token.TOKEN_TYPE.LITERAL:
                     data_node = ASTNode(ASTNode.NodeType.LITERAL)
                     data_node.value = data_token.value
 
-                return data_node
+                return data_node, i
 
-            node = make_data_node(tokens[0])
+            node, i = make_data_node(0)
 
-            i = 0
             while i < len(tokens):
                 token = tokens[i]
 
@@ -86,71 +125,90 @@ def generate_ast_tree(tokenized_lines: list[list[Token]]) -> list[ASTNode]:
                     new_node = ASTNode(ASTNode.NodeType.ADD)
                     new_node.first = node
 
-                    new_node.second = make_data_node(tokens[i + 1])
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.SUBTRACT:
                     new_node = ASTNode(ASTNode.NodeType.SUBTRACT)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.MULTIPLY:
                     new_node = ASTNode(ASTNode.NodeType.MULTIPLY)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.DIVIDE:
                     new_node = ASTNode(ASTNode.NodeType.DIVIDE)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.MODULUS:
                     new_node = ASTNode(ASTNode.NodeType.MODULUS)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.GREATER_THAN:
                     new_node = ASTNode(ASTNode.NodeType.GREATER_THAN)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.LESS_THAN:
                     new_node = ASTNode(ASTNode.NodeType.LESS_THAN)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
                     
                 elif token.token_type == Token.TOKEN_TYPE.EQUALS:
                     new_node = ASTNode(ASTNode.NodeType.EQUALS)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
                     
                 elif token.token_type == Token.TOKEN_TYPE.OR:
                     new_node = ASTNode(ASTNode.NodeType.OR)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 elif token.token_type == Token.TOKEN_TYPE.AND:
                     new_node = ASTNode(ASTNode.NodeType.AND)
                     new_node.first = node
-                    new_node.second = make_data_node(tokens[i + 1])
+
                     i += 1
+                    new_node.second, i = make_data_node(i)
+
                     node = new_node
 
                 print(f"{node} from token: {token}")
@@ -221,22 +279,7 @@ def generate_ast_tree(tokenized_lines: list[list[Token]]) -> list[ASTNode]:
             identifierNode.name = identifier
 
             if tokenized_line[1].token_type == Token.TOKEN_TYPE.OPENING_PARENTHESIS:
-                node = ASTNode(ASTNode.NodeType.FUNCTION_CALL)
-                node.identifier = identifierNode
-
-                if tokenized_line[-1].token_type != Token.TOKEN_TYPE.CLOSING_PARENTHESIS:
-                    raise SyntaxError("Missing ) on function call")
-
-                expression_collector: list[Token] = []
-                for arg_token in tokenized_line[2:-1]: 
-                    if arg_token.token_type == Token.TOKEN_TYPE.SEPERATOR:
-                        node.args.append(make_expression_node(expression_collector))
-                        expression_collector = []
-                    else:
-                        expression_collector.append(arg_token)
-
-                node.args.append(make_expression_node(expression_collector))
-                ast_nodes.append(node)
+                pass
 
             else:
                 node = ASTNode(ASTNode.NodeType.VARIABLE_ASSIGNMENT)

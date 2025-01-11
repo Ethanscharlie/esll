@@ -11,15 +11,15 @@ String checkNumber(Integer number)
 end
 
 Void doFizzbuzz(Integer number)
-  print(number)
-  print(checkNumber(number))
-  print("")
+  _ print(number)
+  _ print(checkNumber(number))
+  _ print("")
 end
 
 Void main()
-  doFizzbuzz(5)
-  doFizzbuzz(3)
-  doFizzbuzz(15)
-  doFizzbuzz(2)
+  _ doFizzbuzz(5)
+  _ doFizzbuzz(3)
+  _ doFizzbuzz(15)
+  _ doFizzbuzz(2)
 end
 

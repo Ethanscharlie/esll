@@ -28,6 +28,15 @@ def listget(list, index):
                     print(f"Literal value: {testing_node.value}")
                 elif testing_node.nodeType == ASTNode.NodeType.IDENTIFIER:
                     expression += testing_node.name;
+
+                elif node.nodeType == node.NodeType.FUNCTION_CALL:
+                    if node.identifier == None:
+                        raise SyntaxError("Null Identifier")
+
+                    identifier = node.identifier.name
+                    args = node.args
+                    expression += f"{identifier}({', '.join([write_expression(arg) for arg in args])})"
+
                 else:
                     print(testing_node.nodeType)
                     expression += write_expression(testing_node)
@@ -39,6 +48,14 @@ def listget(list, index):
                 expression += node.value;
             elif node.nodeType == ASTNode.NodeType.IDENTIFIER:
                 expression += node.name;
+
+            elif node.nodeType == node.NodeType.FUNCTION_CALL:
+                if node.identifier == None:
+                    raise SyntaxError("Null Identifier")
+
+                identifier = node.identifier.name
+                args = node.args
+                expression += f"{identifier}({', '.join([write_expression(arg) for arg in args])})"
 
             if node.nodeType == ASTNode.NodeType.ADD:
                 expression += checkNode(node.first)
@@ -125,13 +142,13 @@ def listget(list, index):
             my_code.append(f"{get_block()}def {identifier}({', '.join([arg.identifier.name for arg in args])}):")
             block += 1
 
-        elif node.nodeType == node.NodeType.FUNCTION_CALL:
-            if node.identifier == None:
-                raise SyntaxError("Null Identifier")
-
-            identifier = node.identifier.name
-            args = node.args
-            my_code.append(f"{get_block()}{identifier}({', '.join([write_expression(arg) for arg in args])})")
+        # elif node.nodeType == node.NodeType.FUNCTION_CALL:
+        #     if node.identifier == None:
+        #         raise SyntaxError("Null Identifier")
+        #
+        #     identifier = node.identifier.name
+        #     args = node.args
+        #     my_code.append(f"{get_block()}{identifier}({', '.join([write_expression(arg) for arg in args])})")
 
         elif node.nodeType == node.NodeType.IF:
             if node.expression == None:
