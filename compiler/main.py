@@ -3,6 +3,7 @@ from __future__ import annotations
 from tokenizer import tokenize
 from asttree import ASTNode, generate_ast_tree
 from generators.python_generator import generate_python
+from generators.c_generator import generate_c
 
 variable_tracker: dict[str, str] = {}
 
@@ -30,10 +31,10 @@ def main() -> None:
     ast_nodes = generate_ast_tree(tokenized_lines)
 
     print(" -- CODE GENERATION -- ")
-    my_code = generate_python(ast_nodes)
+    my_code = generate_c(ast_nodes)
 
     # Write to file
-    with open("mycode.py", "w+") as f:
+    with open("mycode.c", "w+") as f:
         for line in my_code:
             f.write(line + "\n")
 

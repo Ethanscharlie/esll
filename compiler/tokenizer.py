@@ -86,6 +86,10 @@ def tokenize(lines: list[str]) -> list[list[Token]]:
             elif word == "return":
                 token_type = Token.TOKEN_TYPE.RETURN
 
+            # If it's still an identiter we want to add a prefix to it
+            if token_type == Token.TOKEN_TYPE.IDENTIFIER:
+                word = f"esll_{word}"
+
             tokenized_lines[-1].append(Token(token_type, word))
 
         for i in range(len(line)):

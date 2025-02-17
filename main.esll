@@ -7,7 +7,7 @@ String checkNumber(Integer number)
     return "fizzbuzz"
   end
 
-  return str(number)
+  return number
 end
 
 Void doFizzbuzz(Integer number)
@@ -17,6 +17,7 @@ Void doFizzbuzz(Integer number)
 end
 
 Void main()
+  Integer makeVariableTest 3
   doFizzbuzz(5)
   doFizzbuzz(3)
   doFizzbuzz(15)
