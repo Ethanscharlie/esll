@@ -3,5 +3,8 @@ end
 
 Void draw()
   setBackground(100, 200, 100)
+
+  fill(255, 0, 0)
+  drawRectangle(100, 100, 400, 400)
 end
 

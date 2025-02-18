@@ -49,14 +49,24 @@ void esllbackend_draw() {
     SDL_RenderPresent(renderer);
 }
 
+// Interactable graphics
 void esll_setBackground(int r, int g, int b) {
     SDL_SetRenderDrawColor(renderer, r, g, b, 255);
     SDL_RenderClear(renderer);
 }
 
+void esll_fill(int r, int g, int b) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+}
+
+void esll_drawRectangle(float x, float y, float w, float h) {
+    SDL_FRect rect = { x, y, w, h };
+    SDL_RenderFillRect(renderer, &rect);
+}
+
 """)
 
-    # PYTHON CODE GENERATION
+    # C CODE GENERATION
     block = 0
     for node in ast_nodes:
 

@@ -34,9 +34,19 @@ void esllbackend_draw() {
     SDL_RenderPresent(renderer);
 }
 
+// Interactable graphics
 void esll_setBackground(int r, int g, int b) {
     SDL_SetRenderDrawColor(renderer, r, g, b, 255);
     SDL_RenderClear(renderer);
+}
+
+void esll_fill(int r, int g, int b) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+}
+
+void esll_drawRectangle(float x, float y, float w, float h) {
+    SDL_FRect rect = { x, y, w, h };
+    SDL_RenderFillRect(renderer, &rect);
 }
 
 
@@ -46,6 +56,8 @@ void esll_start()
 void esll_draw()
 {
     esll_setBackground(100, 200, 100);
+    esll_fill(255, 0, 0);
+    esll_drawRectangle(100, 100, 400, 400);
 }
 
 int main() {
