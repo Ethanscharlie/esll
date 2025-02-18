@@ -1,26 +1,7 @@
-String checkNumber(Integer number)
-  if number % 3 = 0
-    return "fizz"
-  elif number % 5 = 0
-    return "buzz"
-  elif number % 5 = 0 & number % 3 = 0
-    return "fizzbuzz"
-  end
-
-  return number
+Void start()
 end
 
-Void doFizzbuzz(Integer number)
-  print(number)
-  print(checkNumber(number))
-  print("")
-end
-
-Void main()
-  Integer makeVariableTest 3
-  doFizzbuzz(5)
-  doFizzbuzz(3)
-  doFizzbuzz(15)
-  doFizzbuzz(2)
+Void draw()
+  setBackground(100, 200, 100)
 end
 

@@ -14,9 +14,46 @@ def generate_c(ast_nodes: list[ASTNode]) -> list[str]:
 
     my_code.append(
 """
+// Includes
+#include "stdio.h"
+#include <SDL3/SDL.h>
+#include <cstdlib>
+
+// Functions
 void esll_print(const char* text) {
     printf(text);
+    printf("\\n");
 }
+
+// Graphics
+SDL_Window *window;
+SDL_Renderer *renderer;
+
+void esllbackend_makeWindow(int width, int height) {
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        printf("SDL_Init Error: %s\\n", SDL_GetError());
+    }
+
+    if (!SDL_CreateWindowAndRenderer("ESLL Window", width, height, SDL_WINDOW_RESIZABLE, &window, &renderer)) {
+        printf("Couldn't create window and renderer: %s\\n", SDL_GetError());
+    }
+}
+
+void esllbackend_draw() {
+    SDL_Event event;
+    SDL_PollEvent(&event);
+    if (event.type == SDL_EVENT_QUIT) {
+        exit(0);
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
+void esll_setBackground(int r, int g, int b) {
+    SDL_SetRenderDrawColor(renderer, r, g, b, 255);
+    SDL_RenderClear(renderer);
+}
+
 """)
 
     # PYTHON CODE GENERATION
@@ -223,7 +260,13 @@ void esll_print(const char* text) {
     my_code.append(
 """
 int main() {
-    esll_main();
+    esllbackend_makeWindow(800, 800);
+    esll_start();
+
+    while (true) {
+        esll_draw();
+        esllbackend_draw();
+    }
 }
 """)
 

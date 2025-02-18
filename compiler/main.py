@@ -34,7 +34,7 @@ def main() -> None:
     my_code = generate_c(ast_nodes)
 
     # Write to file
-    with open("mycode.c", "w+") as f:
+    with open("build/index.c", "w+") as f:
         for line in my_code:
             f.write(line + "\n")
 
