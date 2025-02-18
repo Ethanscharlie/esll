@@ -1,7 +1,16 @@
-Decimal SPEED 0.01
 
+" --------------- Constants --------------- "
+Decimal SCREEN_WIDTH 800
+Decimal SCREEN_HEIGHT 800
+Decimal SPEED 0.05
+Decimal GRAVITY 0.00005
+
+" --------------- box variables --------------- "
 Decimal boxX 100
 Decimal boxY 100
+Decimal boxW 100
+Decimal boxH 100
+Decimal boxVelocityY 0
 
 Void start()
 end
@@ -9,20 +18,27 @@ end
 Void draw()
   setBackground(100, 200, 100)
 
+  " --------------- Draw Box --------------- "
+  boxVelocityY boxVelocityY + GRAVITY
+
   if pressingKey(">")
     boxX boxX + SPEED
   end
   if pressingKey("<")
     boxX boxX - SPEED
   end
-  if pressingKey("^")
-    boxY boxY - SPEED
+  if pressingKey(" ")
+    boxVelocityY -0.1
   end
-  if pressingKey("v")
-    boxY boxY + SPEED
+
+  boxY boxY + boxVelocityY
+
+  if boxY + boxH > SCREEN_HEIGHT
+    boxY SCREEN_HEIGHT - boxH
+    boxVelocityY 0
   end
 
   fill(255, 0, 0)
-  drawRectangle(boxX, boxY, 100, 100)
+  drawRectangle(boxX, boxY, boxW, boxH)
 end
 

@@ -68,15 +68,22 @@ bool esll_pressingKey(char* key) {
 }
 
 
-float esll_SPEED = 0.01;
+float esll_SCREEN_WIDTH = 800;
+float esll_SCREEN_HEIGHT = 800;
+float esll_SPEED = 0.05;
+float esll_GRAVITY = 0.00005;
 float esll_boxX = 100;
 float esll_boxY = 100;
+float esll_boxW = 100;
+float esll_boxH = 100;
+float esll_boxVelocityY = 0;
 void esll_start()
 {
 }
 void esll_draw()
 {
     esll_setBackground(100, 200, 100);
+    esll_boxVelocityY = esll_boxVelocityY+esll_GRAVITY;
     if (esll_pressingKey(">"))
     {
         esll_boxX = esll_boxX+esll_SPEED;
@@ -85,16 +92,18 @@ void esll_draw()
     {
         esll_boxX = esll_boxX-esll_SPEED;
 }
-    if (esll_pressingKey("^"))
+    if (esll_pressingKey(" "))
     {
-        esll_boxY = esll_boxY-esll_SPEED;
+        esll_boxVelocityY = -0.1;
 }
-    if (esll_pressingKey("v"))
+    esll_boxY = esll_boxY+esll_boxVelocityY;
+    if (esll_boxY+esll_boxH>esll_SCREEN_HEIGHT)
     {
-        esll_boxY = esll_boxY+esll_SPEED;
+        esll_boxY = esll_SCREEN_HEIGHT-esll_boxH;
+        esll_boxVelocityY = 0;
 }
     esll_fill(255, 0, 0);
-    esll_drawRectangle(esll_boxX, esll_boxY, 100, 100);
+    esll_drawRectangle(esll_boxX, esll_boxY, esll_boxW, esll_boxH);
 }
 
 int main() {
