@@ -1,4 +1,4 @@
 all:Build
 
 Build:
-	g++ index.c -o index -lSDL3
+	gcc index.c -o index -lSDL3

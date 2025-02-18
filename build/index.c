@@ -1,8 +1,8 @@
 
 // Includes
 #include "stdio.h"
+#include <stdlib.h>
 #include <SDL3/SDL.h>
-#include <cstdlib>
 
 // Functions
 void esll_print(const char* text) {
@@ -49,15 +49,52 @@ void esll_drawRectangle(float x, float y, float w, float h) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
+bool esll_pressingKey(char* key) {
+    const bool *keyState = SDL_GetKeyboardState(NULL);
 
+    if (key == " ") {
+        return keyState[SDL_SCANCODE_SPACE];
+    } else if (key == ">") {
+        return keyState[SDL_SCANCODE_RIGHT];
+    } else if (key == "<") {
+        return keyState[SDL_SCANCODE_LEFT];
+    } else if (key == "^") {
+        return keyState[SDL_SCANCODE_UP];
+    } else if (key == "v") {
+        return keyState[SDL_SCANCODE_DOWN];
+    }
+
+    return false;
+}
+
+
+float esll_SPEED = 0.01;
+float esll_boxX = 100;
+float esll_boxY = 100;
 void esll_start()
 {
 }
 void esll_draw()
 {
     esll_setBackground(100, 200, 100);
+    if (esll_pressingKey(">"))
+    {
+        esll_boxX = esll_boxX+esll_SPEED;
+}
+    if (esll_pressingKey("<"))
+    {
+        esll_boxX = esll_boxX-esll_SPEED;
+}
+    if (esll_pressingKey("^"))
+    {
+        esll_boxY = esll_boxY-esll_SPEED;
+}
+    if (esll_pressingKey("v"))
+    {
+        esll_boxY = esll_boxY+esll_SPEED;
+}
     esll_fill(255, 0, 0);
-    esll_drawRectangle(100, 100, 400, 400);
+    esll_drawRectangle(esll_boxX, esll_boxY, 100, 100);
 }
 
 int main() {

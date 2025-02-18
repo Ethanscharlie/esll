@@ -16,8 +16,8 @@ def generate_c(ast_nodes: list[ASTNode]) -> list[str]:
 """
 // Includes
 #include "stdio.h"
+#include <stdlib.h>
 #include <SDL3/SDL.h>
-#include <cstdlib>
 
 // Functions
 void esll_print(const char* text) {
@@ -62,6 +62,24 @@ void esll_fill(int r, int g, int b) {
 void esll_drawRectangle(float x, float y, float w, float h) {
     SDL_FRect rect = { x, y, w, h };
     SDL_RenderFillRect(renderer, &rect);
+}
+
+bool esll_pressingKey(char* key) {
+    const bool *keyState = SDL_GetKeyboardState(NULL);
+
+    if (key == " ") {
+        return keyState[SDL_SCANCODE_SPACE];
+    } else if (key == ">") {
+        return keyState[SDL_SCANCODE_RIGHT];
+    } else if (key == "<") {
+        return keyState[SDL_SCANCODE_LEFT];
+    } else if (key == "^") {
+        return keyState[SDL_SCANCODE_UP];
+    } else if (key == "v") {
+        return keyState[SDL_SCANCODE_DOWN];
+    }
+
+    return false;
 }
 
 """)

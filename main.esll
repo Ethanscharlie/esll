@@ -1,10 +1,28 @@
+Decimal SPEED 0.01
+
+Decimal boxX 100
+Decimal boxY 100
+
 Void start()
 end
 
 Void draw()
   setBackground(100, 200, 100)
 
+  if pressingKey(">")
+    boxX boxX + SPEED
+  end
+  if pressingKey("<")
+    boxX boxX - SPEED
+  end
+  if pressingKey("^")
+    boxY boxY - SPEED
+  end
+  if pressingKey("v")
+    boxY boxY + SPEED
+  end
+
   fill(255, 0, 0)
-  drawRectangle(100, 100, 400, 400)
+  drawRectangle(boxX, boxY, 100, 100)
 end
 
