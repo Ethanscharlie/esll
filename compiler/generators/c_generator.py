@@ -19,6 +19,10 @@ def generate_c(ast_nodes: list[ASTNode]) -> list[str]:
 #include <stdlib.h>
 #include <SDL3/SDL.h>
 
+// Global variables
+float esll_deltatime = 0;
+float esllbackend_lastTime = 0;
+
 // Functions
 void esll_print(const char* text) {
     printf(text);
@@ -40,6 +44,12 @@ void esllbackend_makeWindow(int width, int height) {
 }
 
 void esllbackend_draw() {
+    // Deltatime
+    Uint64 currentTime = SDL_GetPerformanceCounter();
+    float inbetweenTime = currentTime - esllbackend_lastTime;
+    esll_deltatime = inbetweenTime * 1000 / SDL_GetPerformanceFrequency() * 0.1;
+    esllbackend_lastTime = SDL_GetPerformanceCounter();
+
     SDL_Event event;
     SDL_PollEvent(&event);
     if (event.type == SDL_EVENT_QUIT) {
