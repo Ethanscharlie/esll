@@ -145,7 +145,7 @@ void ASTNode::print(const int &level) {
     for (const auto &arg : args) {
       indent();
       std::cout << "  arg: \n";
-      // expression->print(level + 1);
+      arg->print(level + 1);
     }
   }
 }
@@ -163,7 +163,6 @@ static std::unique_ptr<ASTNode> makeDataNode(const std::vector<Token> &tokens,
     auto identifierNode = std::make_unique<ASTNode>(NodeType_IDENTIFIER);
     identifierNode->name = dataToken.value;
 
-    printf("MARKSOMETHINGIDK i: %d, size: %d\n", i, (int)tokens.size());
     if (i < tokens.size() - 1 &&
         tokens[i + 1].tokenType == TokenType_OPENING_PARENTHESIS) {
       dataNode->nodeType = NodeType_FUNCTION_CALL;
@@ -175,12 +174,12 @@ static std::unique_ptr<ASTNode> makeDataNode(const std::vector<Token> &tokens,
       std::vector<Token> expressionCollector;
       // TODO Broken code found tokens[*i] != TokenType_CLOSING_PARENTHESIS
       while (parenthesisDeep > 0 || true) {
-        printf("MARKWHILE %d\n", i);
         const Token &argToken = tokens[i];
 
         switch (argToken.tokenType) {
         case TokenType_SEPERATOR: {
           dataNode->args.push_back(makeExpressionNode(expressionCollector));
+          expressionCollector.clear();
           break;
         }
 
@@ -207,7 +206,6 @@ static std::unique_ptr<ASTNode> makeDataNode(const std::vector<Token> &tokens,
       }
 
       i += 1;
-      printf("MARK %d\n", (int)expressionCollector.size());
       dataNode->args.push_back(makeExpressionNode(expressionCollector));
     } else { // Is a variable
       dataNode = std::move(identifierNode);
