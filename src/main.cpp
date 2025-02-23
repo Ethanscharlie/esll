@@ -24,7 +24,7 @@ int main() {
       "Decimal boxW 100",
       "Decimal boxH 100",
       "Decimal boxVelocityY 0",
-      "Void start()",
+      "Void start(Decimal testArg, Boolean test2)",
       "end",
       "Void draw()",
       "  setBackground(100, 200, 100)",

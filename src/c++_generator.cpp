@@ -185,7 +185,9 @@ bool esll_pressingKey(char* key) {
       )");
 
   int block = 0;
-  for (auto &node : astNodes) {
+  for (int lineNumber = 0; lineNumber < astNodes.size(); lineNumber ++) {
+    auto &node = astNodes[lineNumber];
+
     auto getBlock = [block]() {
       std::string tab;
       for (int i = 0; i < block; i++) {
@@ -201,9 +203,6 @@ bool esll_pressingKey(char* key) {
       }
       std::string identifier = node->identifier->name;
 
-      if (!node->esllType) {
-        throw std::runtime_error("Null Type");
-      }
       const EsllType &esllType = node->esllType;
       const std::string cType = typeToCType(esllType);
 
@@ -240,9 +239,6 @@ bool esll_pressingKey(char* key) {
       }
       std::string identifier = node->identifier->name;
 
-      if (!node->esllType) {
-        throw std::runtime_error("Null Type");
-      }
       const EsllType &esllType = node->esllType;
       const std::string cType = typeToCType(esllType);
 
@@ -254,30 +250,62 @@ bool esll_pressingKey(char* key) {
         codepush += std::format("{} {}", typeToCType(arg->esllType),
                                 arg->identifier->name);
 
-        // if (arg != args.back()) {
-        codepush += ", ";
-        // }
+        if (arg != args.back()) {
+          codepush += ", ";
+        }
       }
+
+      codepush += ") {";
+      myCode.push_back(codepush);
     } break;
 
     case NodeType_IF: {
+      if (!node->expression) {
+        throw std::runtime_error("Null Expression");
+      }
+      const ASTNode &expression = *node->expression;
+      const std::string writtenExpression = writeExpression(expression);
+
+      myCode.push_back(getBlock() + "if (" + writtenExpression + ") {");
     } break;
 
     case NodeType_RETURN: {
+      if (!node->expression) {
+        throw std::runtime_error("Null Expression");
+      }
+      const ASTNode &expression = *node->expression;
+      const std::string writtenExpression = writeExpression(expression);
+
+      myCode.push_back(getBlock() + "return " + writtenExpression + ";");
     } break;
 
     case NodeType_ELIF: {
+      if (!node->expression) {
+        throw std::runtime_error("Null Expression");
+      }
+      const ASTNode &expression = *node->expression;
+      const std::string writtenExpression = writeExpression(expression);
+
+      myCode.push_back(getBlock() + "else if (" + writtenExpression + ") {");
     } break;
 
     case NodeType_ELSE: {
+      myCode.push_back(getBlock() + "else {");
     } break;
 
     case NodeType_WHILE: {
+      if (!node->expression) {
+        throw std::runtime_error("Null Expression");
+      }
+      const ASTNode &expression = *node->expression;
+      const std::string writtenExpression = writeExpression(expression);
+
+      myCode.push_back(getBlock() + "while (" + writtenExpression + ") {");
     } break;
 
     case NodeType_END: {
       if (block == 0) {
-        throw std::runtime_error("Misplaced End");
+        // throw std::runtime_error("Misplaced End");
       }
 
       myCode.push_back("}");
