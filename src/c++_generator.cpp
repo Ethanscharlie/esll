@@ -366,6 +366,7 @@ bool esll_pressingKey(char* key) {
     } break;
 
     default: {
+      myCode.push_back(getBlock() + writeExpression(*node.get()) + ";");
     } break;
     }
   }
