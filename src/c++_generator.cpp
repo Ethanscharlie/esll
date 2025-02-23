@@ -53,7 +53,9 @@ static std::string checkNode(ASTNode *testingNode) {
     expression += "(";
     for (const auto &arg : args) {
       expression += writeExpression(*arg.get());
-      expression += ", ";
+      if (arg != args.back()) {
+        expression += ", ";
+      }
     }
     expression += ")";
   } break;
@@ -84,7 +86,9 @@ static std::string writeExpression(const ASTNode &node) {
     expression += "(";
     for (const std::unique_ptr<ASTNode> &arg : node.args) {
       expression += writeExpression(*arg.get());
-      expression += ", ";
+      if (arg != node.args.back()) {
+        expression += ", ";
+      }
     }
     expression += ")";
   } break;
