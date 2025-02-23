@@ -25,21 +25,21 @@ static EsllType getType(const std::string &name) {
 }
 
 static std::unique_ptr<ASTNode>
-makeExpressionNode(const std::vector<Token> &tokens, int *i);
+makeExpressionNode(const std::vector<Token> &tokens);
 
 static std::unique_ptr<ASTNode> makeDataNode(const std::vector<Token> &tokens,
-                                             int *i) {
-  Token dataToken = tokens[*i];
-  std::unique_ptr<ASTNode> dataNode = std::make_unique<ASTNode>(NodeType_NONE);
+                                             int &i) {
+  const Token &dataToken = tokens[i];
+  auto dataNode = std::make_unique<ASTNode>(NodeType_NONE);
 
   switch (dataToken.tokenType) {
   case TokenType_IDENTIFIER: {
-    std::unique_ptr<ASTNode> identifierNode =
-        std::make_unique<ASTNode>(NodeType_IDENTIFIER);
+    auto identifierNode = std::make_unique<ASTNode>(NodeType_IDENTIFIER);
     identifierNode->name = dataToken.value;
 
-    if (*i < tokens.size() - 1 &&
-        tokens[*i + 1].tokenType == TokenType_OPENING_PARENTHESIS) {
+    printf("MARKSOMETHINGIDK i: %d, size: %d\n", i, (int)tokens.size());
+    if (i < tokens.size() - 1 &&
+        tokens[i + 1].tokenType == TokenType_OPENING_PARENTHESIS) {
       dataNode->nodeType = NodeType_FUNCTION_CALL;
       dataNode->identifier = std::move(identifierNode);
 
@@ -47,39 +47,42 @@ static std::unique_ptr<ASTNode> makeDataNode(const std::vector<Token> &tokens,
 
       int parenthesisDeep = 0;
       std::vector<Token> expressionCollector;
-      int expressionCollectorSize = 0;
       // TODO Broken code found tokens[*i] != TokenType_CLOSING_PARENTHESIS
-      while (parenthesisDeep > 0) {
-        Token argToken = tokens[*i];
+      while (parenthesisDeep > 0 || true) {
+        printf("MARKWHILE %d\n", i);
+        const Token &argToken = tokens[i];
 
         switch (argToken.tokenType) {
         case TokenType_SEPERATOR: {
-          std::unique_ptr<ASTNode> newNode =
-              makeExpressionNode(expressionCollector, i);
-          dataNode->args.push_back(std::move(newNode));
-          expressionCollectorSize = 0;
-        } break;
+          dataNode->args.push_back(makeExpressionNode(expressionCollector));
+          break;
+        }
 
         case TokenType_OPENING_PARENTHESIS: {
           parenthesisDeep++;
-        } break;
+          break;
+        }
 
         case TokenType_CLOSING_PARENTHESIS: {
           parenthesisDeep--;
-        } break;
+          break;
+        }
 
         default: {
-          expressionCollector[expressionCollectorSize] = argToken;
-          expressionCollectorSize++;
-        } break;
+          expressionCollector.push_back(argToken);
+        }
         }
 
         i++;
-        if (*i == tokens.size()) {
+        if (i == tokens.size()) {
           i -= 2;
           break;
         }
       }
+
+      i += 1;
+      printf("MARK %d\n", (int)expressionCollector.size());
+      dataNode->args.push_back(makeExpressionNode(expressionCollector));
     } else { // Is a variable
       dataNode = std::move(identifierNode);
     }
@@ -91,7 +94,7 @@ static std::unique_ptr<ASTNode> makeDataNode(const std::vector<Token> &tokens,
   } break;
   }
 
-  return dataNode;
+  return std::move(dataNode);
 }
 
 static std::vector<Token> chopOffBeg(const std::vector<Token> &tokens,
@@ -106,11 +109,12 @@ static std::vector<Token> chopOffBeg(const std::vector<Token> &tokens,
 }
 
 static std::unique_ptr<ASTNode>
-makeExpressionNode(const std::vector<Token> &tokens, int *i) {
+makeExpressionNode(const std::vector<Token> &tokens) {
+  int i = 0;
   std::unique_ptr<ASTNode> node = makeDataNode(tokens, i);
 
-  while (*i < tokens.size()) {
-    const Token *token = &tokens[*i];
+  while (i < tokens.size()) {
+    const Token *token = &tokens[i];
 
     switch (token->tokenType) {
     case TokenType_ADD: {
@@ -154,7 +158,7 @@ makeExpressionNode(const std::vector<Token> &tokens, int *i) {
     i++;
   }
 
-  return node;
+  return std::move(node);
 }
 
 static std::unique_ptr<ASTNode>
@@ -227,9 +231,8 @@ generateASTTree(std::vector<std::vector<Token>> tokenizedLines) {
           node->esllType = getType(declarationType);
           node->identifier = std::move(identifierNode);
 
-          int i = 0;
           std::unique_ptr<ASTNode> expressionNode =
-              makeExpressionNode(chopOffBeg(line, 2), &i);
+              makeExpressionNode(chopOffBeg(line, 2));
           node->expression = std::move(expressionNode);
 
           astNodes.push_back(std::move(node));
@@ -246,16 +249,13 @@ generateASTTree(std::vector<std::vector<Token>> tokenizedLines) {
       identifierNode->name = identifier;
 
       if (line[1].tokenType == TokenType_OPENING_PARENTHESIS) {
-        int i = 0;
-        astNodes.push_back(std::move(makeDataNode(line, &i)));
+        astNodes.push_back(makeExpressionNode(line));
       } else {
-        std::unique_ptr<ASTNode> node =
-            std::make_unique<ASTNode>(NodeType_VARIABLE_ASSIGNMENT);
+        auto node = std::make_unique<ASTNode>(NodeType_VARIABLE_ASSIGNMENT);
         node->identifier = std::move(identifierNode);
 
-        int i = 0;
         std::unique_ptr<ASTNode> expressionNode =
-            makeExpressionNode(chopOffBeg(line, 1), &i);
+            makeExpressionNode(chopOffBeg(line, 1));
         node->expression = std::move(expressionNode);
 
         astNodes.push_back(std::move(node));
@@ -264,15 +264,13 @@ generateASTTree(std::vector<std::vector<Token>> tokenizedLines) {
 
     case TokenType_IF: {
       node->nodeType = NodeType_IF;
-      int i = 0;
-      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1), &i));
+      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1)));
       astNodes.push_back(std::move(node));
     } break;
 
     case TokenType_ELIF: {
       node->nodeType = NodeType_ELIF;
-      int i = 0;
-      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1), &i));
+      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1)));
       astNodes.push_back(std::move(node));
     } break;
 
@@ -283,15 +281,13 @@ generateASTTree(std::vector<std::vector<Token>> tokenizedLines) {
 
     case TokenType_RETURN: {
       node->nodeType = NodeType_RETURN;
-      int i = 0;
-      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1), &i));
+      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1)));
       astNodes.push_back(std::move(node));
     } break;
 
     case TokenType_WHILE: {
       node->nodeType = NodeType_WHILE;
-      int i = 0;
-      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1), &i));
+      node->expression = std::move(makeExpressionNode(chopOffBeg(line, 1)));
       astNodes.push_back(std::move(node));
     } break;
 

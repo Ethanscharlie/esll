@@ -80,10 +80,9 @@ static std::string writeExpression(const ASTNode &node) {
     }
     std::string identifier = node.identifier->name;
 
-    const auto &args = node.args;
     expression += identifier;
     expression += "(";
-    for (const auto &arg : args) {
+    for (const std::unique_ptr<ASTNode> &arg : node.args) {
       expression += writeExpression(*arg.get());
       expression += ", ";
     }
@@ -93,6 +92,60 @@ static std::string writeExpression(const ASTNode &node) {
   case NodeType_ADD: {
     expression += checkNode(node.first.get());
     expression += "+";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_SUBTRACT: {
+    expression += checkNode(node.first.get());
+    expression += "-";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_MULTIPLY: {
+    expression += checkNode(node.first.get());
+    expression += "*";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_DIVIDE: {
+    expression += checkNode(node.first.get());
+    expression += "/";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_MODULUS: {
+    expression += checkNode(node.first.get());
+    expression += "%";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_EQUALS: {
+    expression += checkNode(node.first.get());
+    expression += "==";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_GREATER_THAN: {
+    expression += checkNode(node.first.get());
+    expression += ">";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_LESS_THAN: {
+    expression += checkNode(node.first.get());
+    expression += "<";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_AND: {
+    expression += checkNode(node.first.get());
+    expression += "&&";
+    expression += checkNode(node.second.get());
+  } break;
+
+  case NodeType_OR: {
+    expression += checkNode(node.first.get());
+    expression += "||";
     expression += checkNode(node.second.get());
   } break;
   }
@@ -185,7 +238,7 @@ bool esll_pressingKey(char* key) {
       )");
 
   int block = 0;
-  for (int lineNumber = 0; lineNumber < astNodes.size(); lineNumber ++) {
+  for (int lineNumber = 0; lineNumber < astNodes.size(); lineNumber++) {
     auto &node = astNodes[lineNumber];
 
     auto getBlock = [block]() {
