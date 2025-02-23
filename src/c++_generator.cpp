@@ -160,20 +160,20 @@ static std::string writeExpression(const ASTNode &node) {
 std::vector<std::string>
 generate_cpp(const std::vector<std::unique_ptr<ASTNode>> &astNodes) {
   std::vector<std::string> myCode;
-  std::vector<std::string> myCodeTemp;
-  myCodeTemp.push_back(R"(
+  myCode.push_back(R"(
 // Includes
 #include "stdio.h"
 #include <stdlib.h>
 #include <SDL3/SDL.h>
+#include <string>
 
 // Global variables
 float esll_deltatime = 0;
 float esllbackend_lastTime = 0;
 
 // Functions
-void esll_print(const char* text) {
-    printf(text);
+void esll_print(const std::string& text) {
+    printf(text.c_str());
     printf("\\n");
 }
 
@@ -222,7 +222,7 @@ void esll_drawRectangle(float x, float y, float w, float h) {
     SDL_RenderFillRect(renderer, &rect);
 }
 
-bool esll_pressingKey(char* key) {
+bool esll_pressingKey(const std::string& key) {
     const bool *keyState = SDL_GetKeyboardState(NULL);
 
     if (key == " ") {
@@ -374,6 +374,18 @@ bool esll_pressingKey(char* key) {
     } break;
     }
   }
+
+  myCode.push_back(R"(
+int main() {
+  esllbackend_makeWindow(800, 800);
+  esll_start();
+
+  while (true) {
+    esll_draw();
+    esllbackend_draw();
+  }
+}
+      )");
 
   return myCode;
 }

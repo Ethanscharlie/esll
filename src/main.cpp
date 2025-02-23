@@ -1,3 +1,4 @@
+#include <fstream>
 #include <iostream>
 #include <stdbool.h>
 #include <stdio.h>
@@ -12,69 +13,43 @@
 
 int main() {
   printf("Reading from file...\n");
-  std::vector<std::string> lines = {
-
-      "Decimal SCREEN_WIDTH 800",
-      "Decimal SCREEN_HEIGHT 800",
-      "Decimal SPEED 10",
-      "Decimal GRAVITY 0.35",
-      "Decimal JUMP_POWER 70",
-      "Decimal boxX 100",
-      "Decimal boxY 100",
-      "Decimal boxW 100",
-      "Decimal boxH 100",
-      "Decimal boxVelocityY 0",
-      "Void start(Decimal testArg, Boolean test2)",
-      "end",
-      "Void draw()",
-      "  setBackground(100, 200, 100)",
-      "  boxVelocityY boxVelocityY + GRAVITY * deltatime",
-      "  if pressingKey(\">\")",
-      "    boxX boxX + SPEED * deltatime",
-      "  end",
-      "  if pressingKey(\"<\")",
-      "    boxX boxX - SPEED * deltatime",
-      "  end",
-      "  if pressingKey(\" \")",
-      "    boxVelocityY -JUMP_POWER * deltatime",
-      "  end",
-      "  boxY boxY + boxVelocityY * deltatime",
-      "  if boxY + boxH > SCREEN_HEIGHT",
-      "    boxY SCREEN_HEIGHT - boxH",
-      "    boxVelocityY 0",
-      "  end",
-      "  fill(255, 0, 0)",
-      "  drawRectangle(boxX, boxY, boxW, boxH)",
-      "end",
-  };
+  std::vector<std::string> lines;
+  {
+    std::ifstream esllFile("main.esll");
+    for (std::string line; getline(esllFile, line);) {
+      lines.push_back(line);
+    }
+    esllFile.close();
+  }
 
   printf("Tokenizing...\n");
   std::vector<std::vector<Token>> tokenizedLines = tokenize(lines);
 
   // Print the tokenized lines
-  // printf("------------------------------------------\n");
-  // for (int i = 0; i < tokenizedLines.size(); i++) {
-  //   printf("Line %d tokens:\n", i + 1);
-  //   for (int j = 0; j < tokenizedLines[i].size(); j++) {
-  //     printf("  Type: %d, Value: %s\n", tokenizedLines[i][j].tokenType,
-  //            tokenizedLines[i][j].value.c_str());
-  //   }
-  // }
+  printf("------------------------------------------\n");
+  for (int i = 0; i < tokenizedLines.size(); i++) {
+    printf("Line %d tokens:\n", i + 1);
+    for (int j = 0; j < tokenizedLines[i].size(); j++) {
+      printf("  Type: %d, Value: %s\n", tokenizedLines[i][j].tokenType,
+             tokenizedLines[i][j].value.c_str());
+    }
+  }
 
   printf("Generating Abstract Syntax Tree...\n");
   auto astNodes = generateASTTree(tokenizedLines);
   for (const auto &node : astNodes) {
-    if (!node->identifier) {
-      continue;
-    }
-    printf("%s\n", node->identifier->name.c_str());
+    node->print();
+    std::cout << "\n";
   }
 
   printf("Generating C++ Output...\n");
   std::vector<std::string> myCode = generate_cpp(astNodes);
-  printf("------------------------------------------\n");
-  for (std::string line : myCode) {
-    printf("%s\n", line.c_str());
+  {
+    std::ofstream outputFile("build/main.cpp");
+    for (std::string line : myCode) {
+      outputFile << line << "\n";
+    }
+    outputFile.close();
   }
 
   return 0;

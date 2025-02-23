@@ -1,5 +1,6 @@
 #include "asttree.hpp"
 #include "tokenizer.hpp"
+#include <iostream>
 #include <math.h>
 #include <memory>
 #include <stdexcept>
@@ -22,6 +23,131 @@ static EsllType getType(const std::string &name) {
   }
 
   return EsllType_VOID;
+}
+
+void ASTNode::print(const int &level) {
+  std::string nodeTypeText;
+
+  switch (nodeType) {
+  case NodeType_NONE:
+    nodeTypeText = "None";
+    break;
+  case NodeType_IDENTIFIER:
+    nodeTypeText = "Identifier";
+    break;
+  case NodeType_LITERAL:
+    nodeTypeText = "Literal";
+    break;
+  case NodeType_TYPE:
+    nodeTypeText = "Type";
+    break;
+
+  case NodeType_ADD:
+    nodeTypeText = "Add";
+    break;
+  case NodeType_SUBTRACT:
+    nodeTypeText = "Subtract";
+    break;
+  case NodeType_MULTIPLY:
+    nodeTypeText = "Mulitply";
+    break;
+  case NodeType_DIVIDE:
+    nodeTypeText = "Divide";
+    break;
+  case NodeType_MODULUS:
+    nodeTypeText = "Modulus";
+    break;
+
+  case NodeType_EQUALS:
+    nodeTypeText = "Equals";
+    break;
+  case NodeType_GREATER_THAN:
+    nodeTypeText = "Greater Than";
+    break;
+  case NodeType_LESS_THAN:
+    nodeTypeText = "Less Than";
+    break;
+  case NodeType_AND:
+    nodeTypeText = "And";
+    break;
+  case NodeType_OR:
+    nodeTypeText = "Or";
+    break;
+
+  case NodeType_VARIABLE_DECLARATION:
+    nodeTypeText = "Variable Declaration";
+    break;
+  case NodeType_FUNCTION_DECLARATION:
+    nodeTypeText = "Variable Declaration";
+    break;
+  case NodeType_VARIABLE_ASSIGNMENT:
+    nodeTypeText = "Variable Assignment";
+    break;
+  case NodeType_FUNCTION_CALL:
+    nodeTypeText = "Function Call";
+    break;
+
+  case NodeType_FUNCTION_ARGUMENT_DECLARATION:
+    nodeTypeText = "Function Argument Declaration";
+    break;
+
+  case NodeType_IF:
+    nodeTypeText = "If";
+    break;
+  case NodeType_WHILE:
+    nodeTypeText = "While";
+    break;
+  case NodeType_END:
+    nodeTypeText = "End";
+    break;
+  case NodeType_ELIF:
+    nodeTypeText = "Elif";
+    break;
+  case NodeType_ELSE:
+    nodeTypeText = "Else";
+    break;
+  case NodeType_RETURN:
+    nodeTypeText = "Return";
+    break;
+  }
+  std::cout << "NodeType: [" << nodeTypeText << "], Value: [" << value
+            << "], Name: [" << name << "], esllType: [" << esllType << "]\n";
+
+  auto indent = [level]() {
+    for (int i = 0; i < level; i++) {
+      std::cout << "   ";
+    }
+  };
+
+  if (first != nullptr) {
+    indent();
+    std::cout << "first: ";
+    first->print(level + 1);
+  }
+  if (second != nullptr) {
+    indent();
+    std::cout << "second: ";
+    second->print(level + 1);
+  }
+  if (identifier != nullptr) {
+    indent();
+    std::cout << "id: ";
+    identifier->print(level + 1);
+  }
+  if (expression != nullptr) {
+    indent();
+    std::cout << "expression: ";
+    expression->print(level + 1);
+  }
+  if (args.size() > 0) {
+    indent();
+    std::cout << "args\n";
+    for (const auto &arg : args) {
+      indent();
+      std::cout << "  arg: \n";
+      // expression->print(level + 1);
+    }
+  }
 }
 
 static std::unique_ptr<ASTNode>
@@ -127,31 +253,88 @@ makeExpressionNode(const std::vector<Token> &tokens) {
     } break;
 
     case TokenType_SUBTRACT: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_SUBTRACT);
+      newNode->first = std::move(node);
+
+      // Negitive Numbers
+
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_MULTIPLY: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_MULTIPLY);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_DIVIDE: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_DIVIDE);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
-      break;
+      // break;
     case TokenType_MODULUS: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_MODULUS);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_GREATER_THAN: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_GREATER_THAN);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_LESS_THAN: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_LESS_THAN);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_EQUALS: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_EQUALS);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_OR: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_OR);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
 
     case TokenType_AND: {
+      auto newNode = std::make_unique<ASTNode>(NodeType_AND);
+      newNode->first = std::move(node);
+      i++;
+      std::unique_ptr<ASTNode> secondNode = makeDataNode(tokens, i);
+      newNode->second = std::move(secondNode);
+      node = std::move(newNode);
     } break;
     }
 

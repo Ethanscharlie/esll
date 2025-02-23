@@ -47,14 +47,17 @@ struct ASTNode {
   ASTNode(NodeType nodeType, std::string value)
       : nodeType(nodeType), value(value) {}
   ASTNode(NodeType nodeType) : nodeType(nodeType), value("") {}
+
+  void print(const int &level = 0);
+
   NodeType nodeType;
   std::string value;
   std::string name;
-  std::unique_ptr<ASTNode> first;
-  std::unique_ptr<ASTNode> second;
-  std::unique_ptr<ASTNode> identifier;
-  std::unique_ptr<ASTNode> expression;
-  EsllType esllType;
+  std::unique_ptr<ASTNode> first = nullptr;
+  std::unique_ptr<ASTNode> second = nullptr;
+  std::unique_ptr<ASTNode> identifier = nullptr;
+  std::unique_ptr<ASTNode> expression = nullptr;
+  EsllType esllType = EsllType_VOID;
   std::vector<std::unique_ptr<ASTNode>> args;
 };
 
