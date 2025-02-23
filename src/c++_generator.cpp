@@ -59,6 +59,9 @@ static std::string checkNode(ASTNode *testingNode) {
     }
     expression += ")";
   } break;
+  default: {
+    expression += writeExpression(*testingNode);
+  }
   }
 
   return expression;
