@@ -18,12 +18,12 @@ end
 
 Void start()
   Integer playerID spawn (Box, Color)
-  playerID : Color r 255
-  playerID : Color g 100
-  playerID : Box x 100
-  playerID : Box y 100
-  playerID : Box w 50
-  playerID : Box h 50
+  <playerID:Color> r 255
+  <playerID:Color> g 100
+  <playerID:Box> x 100
+  <playerID:Box> y 100
+  <playerID:Box> w 50
+  <playerID:Box> h 50
 end
 
 Void draw()
