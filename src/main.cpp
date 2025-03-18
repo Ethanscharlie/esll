@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
   }
   outputFile.close();
 
-  system("g++ build/main.cpp -lSDL3 -o build/main");
+  system("g++ build/main.cpp -o build/main");
 
   return 0;
 }
